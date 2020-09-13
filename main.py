@@ -1,6 +1,4 @@
 import argparse
-import sys
-sys.setrecursionlimit(100000)
 
 from map_obj import MapObj
 from visualizer import Visualizer
