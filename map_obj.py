@@ -3,22 +3,26 @@ import copy
 
 from cell import Cell
 
-def get_state(x):
-    if x == -1:
+def get_state(weight, start = False, goal = False):
+    if start:
+        return "START"
+    elif goal:
+        return "GOAL"
+    elif weight == -1:
         return "BARRIER"
     else:
         return "STANDARD"
 
 class MapObj(object):
-    def __init__(self, rows = 20, cols = 20, path_to_map = None):
+    def __init__(self, rows = 20, cols = 20, start_id = None, goal_id = None, path_to_map = None):
         self.rows = rows
         self.cols = cols
         self.base_cells = None
         self.cells = None
 
         # ids to start and goal cells
-        self.start_id = None
-        self.goal_id = None
+        self.start_id = start_id
+        self.goal_id = goal_id
 
         if not path_to_map: 
             self._set_blank_map()
@@ -40,7 +44,9 @@ class MapObj(object):
             for row, line in enumerate(csv_reader):
                 row_cells = []
                 for col, num in enumerate(line):
-                    row_cells.append(Cell(get_state(int(num)),int(num)))
+                    weight = int(num)
+                    state = get_state(weight, self.start_id == (row,col), self.goal_id == (row,col))
+                    row_cells.append(Cell(state,weight))
                 self.cells.append(row_cells)
 
             self.rows = len(self.cells)
@@ -68,15 +74,6 @@ class MapObj(object):
             self.start_id = (row,col)
         elif state == "GOAL":
             self.goal_id = (row,col)
-        
-    def has_start(self):
-        return bool(self.start_id)
-
-    def has_goal(self):
-        return bool(self.goal_id)
-
-    def has_critical_states(self):
-        return bool(self.start_id and self.goal_id)
 
     def remove_critical_states(self):
         self.start_id = None
