@@ -64,9 +64,7 @@ class MapObj(object):
             for cell in cell_row:
                 if cell.state not in ["BARRIER","STANDARD","START","GOAL"]:
                     cell.set_state("STANDARD")
-                cell.f = 100000
-                cell.g = 100000
-                cell.h = 100000
+                cell.reset_scores()
         self._update_all_neighbours()
 
     def reset(self):
@@ -98,7 +96,7 @@ class MapObj(object):
         self._update_neighbours(cell)
 
     def move_goal(self):
-        if not self.goal_pos == self.end_goal_pos:
+        if self.end_goal_pos and not self.goal_pos == self.end_goal_pos:
             goal_cell = self.cells[self.goal_pos[0]][self.goal_pos[1]]
             if self.goal_pos[0] < self.end_goal_pos[0]:
                 new_goal_cell = self.cells[self.goal_pos[0] + 1][self.goal_pos[1]]

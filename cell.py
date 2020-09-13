@@ -1,3 +1,5 @@
+import math
+
 COLORS = {
     "STANDARD":(255, 255, 255),
     "BARRIER":(0, 0, 0),
@@ -30,15 +32,20 @@ class Cell(object):
         # A* dependent variables
         self.neighbours = []
         self.parent = None
-        self.f = 100000
-        self.g = 100000
-        self.h = 100000
+        self.g = math.inf
+        self.h = math.inf
+        self.f = self.g + self.h
 
     def set_state(self, state, weight = None):
         self.state = state
         if weight is not None:
             self.weight = weight
         self.color = set_color(self.state, self.weight)
+
+    def reset_scores(self):
+        self.g = math.inf
+        self.h = math.inf
+        self.f = self.g + self.h
 
     def __eq__(self, other):
         return self.row == other.row and self.col == other.col
