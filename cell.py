@@ -1,11 +1,11 @@
 COLORS = {
-    "STANDARD":(255,200,255),
-    "BARRIER":(0,0,0),
-    "START":(204,102,0),
-    "GOAL":(0,204,102),
-    "OPEN":(51,153,255),
-    "CLOSED":(153,255,51),
-    "PATH":(122,153,51)
+    "STANDARD":(255, 255, 255),
+    "BARRIER":(0, 0, 0),
+    "START":(0, 51, 204),
+    "GOAL":(255, 51, 0),
+    "OPEN":(255, 153, 0),
+    "CLOSED":(0, 153, 204),
+    "PATH":(255, 204, 102)
 }
 
 # Darkens shade of cells with higher weight. Best results in range 0.2-0.5
@@ -20,17 +20,25 @@ def set_color(state, weight):
     return color
 
 class Cell(object):
-    def __init__(self, state, weight):
-        self.state = state
-        self.weight = weight
-        self.color = set_color(self.state, self.weight)
-        self.neighbors = []
-
-    def set_state(self, state, weight):
+    def __init__(self, row, col, state, weight):
+        self.row = row
+        self.col = col
         self.state = state
         self.weight = weight
         self.color = set_color(self.state, self.weight)
 
-if __name__ == "__main__":
-    c = Cell(1,1,1,"STANDARD",2)
-    print(c.color)
+        # A* dependent variables
+        self.neighbours = []
+        self.parent = None
+        self.f = 100000
+        self.g = 100000
+        self.h = 100000
+
+    def set_state(self, state, weight = None):
+        self.state = state
+        if weight is not None:
+            self.weight = weight
+        self.color = set_color(self.state, self.weight)
+
+    def __eq__(self, other):
+        return self.row == other.row and self.col == other.col
