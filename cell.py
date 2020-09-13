@@ -8,10 +8,13 @@ COLORS = {
     "PATH":(255,153,51)
 }
 
+# Darkens shade of cells with higher weight. Best results in range 0.2-0.5
+DARKEN_FACTOR = 0.4
+
 def set_color(state, weight):
     # Darken color for higher weighted standard cells
     if weight > 1 and state == "STANDARD":
-        color = tuple([c - 25*weight for c in COLORS[state]])
+        color = tuple([c * (1 - DARKEN_FACTOR)**weight for c in COLORS[state]])
     else:
         color = COLORS[state]
     return color
