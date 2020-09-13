@@ -76,9 +76,6 @@ class MapObj(object):
             self._load_map()
         self._update_all_neighbours()
 
-    def get_cell(self, row, col):
-        return self.cells[row][col]
-
     def get_start_cell(self):
         return self.cells[self.start_pos[0]][self.start_pos[1]]
 
@@ -94,12 +91,26 @@ class MapObj(object):
         cell.set_state(state, weight)
 
         if state == "START":
-            self.start_pos = (cell.row,cell.col)
+            self.start_pos = (cell.row, cell.col)
         elif state == "GOAL":
-            self.goal_pos = (cell.row,cell.col)
+            self.goal_pos = (cell.row ,cell.col)
         
         self._update_neighbours(cell)
 
+    def move_goal(self):
+        if not self.goal_pos == self.end_goal_pos:
+            goal_cell = self.cells[self.goal_pos[0]][self.goal_pos[1]]
+            if self.goal_pos[0] < self.end_goal_pos[0]:
+                new_goal_cell = self.cells[self.goal_pos[0] + 1][self.goal_pos[1]]
+            elif self.goal_pos[0] > self.end_goal_pos[0]:
+                new_goal_cell = self.cells[self.goal_pos[0] - 1][self.goal_pos[1]]
+            elif self.goal_pos[1] < self.end_goal_pos[1]:
+                new_goal_cell = self.cells[self.goal_pos[0]][self.goal_pos[1] + 1]
+            else:
+                new_goal_cell = self.cells[self.goal_pos[0]][self.goal_pos[1] - 1]
+
+            self.set_cell_state(goal_cell, "STANDARD")
+            self.set_cell_state(new_goal_cell, "GOAL")
 
     def _get_neighbour_cells(self, cell, connectivity = "4N"):
         neighbour_cells = []

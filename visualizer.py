@@ -13,6 +13,8 @@ TASK5 = Task(start_pos = (14, 18), goal_pos = (6, 36), end_goal_pos = (6, 7), pa
 
 TASKS = [TASK0,TASK1,TASK2,TASK3,TASK4,TASK5]
 
+MOVE_RATE = 4
+
 class Visualizer(object):
     def __init__(self, cell_size = 16):
         self.map_obj = MapObj(TASK0)
@@ -25,6 +27,8 @@ class Visualizer(object):
         self.drawing_weight = 1
 
         self.a_star = None
+
+        self.tick_counter = 0
 
         self.window = pygame.display.set_mode((self.win_width,self.win_height))
         pygame.display.set_caption("A* Visualizer")
@@ -100,6 +104,9 @@ class Visualizer(object):
                     self.map_obj.set_cell_state(cell, "BARRIER", -1)
 
             if self.a_star_running:
+                self.tick_counter += 1
+                if not self.tick_counter % MOVE_RATE:
+                    self.map_obj.move_goal()
                 self.a_star_running = self.a_star.update()
             # Draw window
             self._draw()
