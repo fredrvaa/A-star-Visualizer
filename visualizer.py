@@ -84,7 +84,7 @@ class Visualizer(object):
                 elif pygame.mouse.get_pressed()[1]: # Middle mouse click
                     pos = pygame.mouse.get_pos()
                     row, col = self._get_grid_pos(pos)
-                    cell = self.map_obj.get_cell(row, col)
+                    cell = self.map_obj.cells[row][col]
                     if self.map_obj.start_pos is None and cell.state not in ["START", "GOAL"]:
                         self.map_obj.set_cell_state(cell, "START", cell.weight)
                     elif self.map_obj.goal_pos is None and cell.state not in ["START", "GOAL"]:
