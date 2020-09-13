@@ -15,22 +15,26 @@ def get_state(weight, start = False, goal = False):
         return "STANDARD"
 
 class MapObj(object):
-    def __init__(self, rows = 20, cols = 20, start_pos = None, goal_pos = None, path_to_map = None):
-        self.rows = rows
-        self.cols = cols
-        self.initial_cells = None
+    def __init__(self, task):
+        self.rows = None
+        self.cols = None
         self.cells = None
 
+        self.task = task
+
         # Position of start and goal cells
-        self.start_pos = start_pos
-        self.goal_pos = goal_pos
+        self.start_pos = task.start_pos
+        self.goal_pos = task.goal_pos
+        self.end_goal_pos = task.end_goal_pos
 
-        if not path_to_map: 
-            self._set_blank_map()
-        else:
-            self._load_map(path_to_map)
-
+        self.reset()
+        
     def _set_blank_map(self):
+        self.rows = self.task.rows
+        self.cols = self.task.cols
+        self.start_pos = None
+        self.goal_pos = None
+        self.end_goal_pos = None
         self.cells = []
         for row in range(self.rows):
             row_cells = []
@@ -39,10 +43,8 @@ class MapObj(object):
                 row_cells.append(cell)
             self.cells.append(row_cells)
 
-        self._update_all_neighbours()
-
-    def _load_map(self, path_to_map):
-        with open(path_to_map, "r") as csv_file:
+    def _load_map(self):
+        with open(self.task.path_to_map, "r") as csv_file:
             self.cells = []
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row, line in enumerate(csv_reader):
@@ -57,9 +59,6 @@ class MapObj(object):
             self.rows = len(self.cells)
             self.cols = len(self.cells[0])
 
-        self._update_all_neighbours()
-        self.initial_cells = copy.deepcopy(self.cells)
-
     def clean(self):
         for cell_row in self.cells:
             for cell in cell_row:
@@ -71,7 +70,10 @@ class MapObj(object):
         self._update_all_neighbours()
 
     def reset(self):
-        self.cells = copy.deepcopy(self.initial_cells)
+        if not self.task.path_to_map: 
+            self._set_blank_map()
+        else:
+            self._load_map()
         self._update_all_neighbours()
 
     def get_cell(self, row, col):
@@ -101,7 +103,7 @@ class MapObj(object):
 
     def _get_neighbour_cells(self, cell, connectivity = "4N"):
         neighbour_cells = []
-        if connectivity == "4N":
+        if connectivity == "4N": # Could implement 8N connectivity in the future
             if cell.row > 0: neighbour_cells.append(self.cells[cell.row - 1][cell.col])             # Above
             if cell.row < self.rows - 1: neighbour_cells.append(self.cells[cell.row + 1][cell.col]) # Below
             if cell.col > 0: neighbour_cells.append(self.cells[cell.row][cell.col - 1])             # Left

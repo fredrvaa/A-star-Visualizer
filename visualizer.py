@@ -2,10 +2,20 @@ import pygame
 import time
 from map_obj import MapObj
 from a_star import AStar
+from task import Task
+
+TASK0 = Task(rows = 50, cols = 50)
+TASK1 = Task(start_pos = (27, 18), goal_pos = (40, 32), path_to_map = "csv_maps/Samfundet_map_1.csv")
+TASK2 = Task(start_pos = (40, 32), goal_pos = (8, 5), path_to_map = "csv_maps/Samfundet_map_1.csv")
+TASK3 = Task(start_pos = (28, 32), goal_pos = (6, 32), path_to_map = "csv_maps/Samfundet_map_2.csv")
+TASK4 = Task(start_pos = (28, 32), goal_pos = (6, 32), path_to_map = "csv_maps/Samfundet_map_Edgar_full.csv")
+TASK5 = Task(start_pos = (14, 18), goal_pos = (6, 36), end_goal_pos = (6, 7), path_to_map = "csv_maps/Samfundet_map_2.csv")
+
+TASKS = [TASK0,TASK1,TASK2,TASK3,TASK4,TASK5]
 
 class Visualizer(object):
-    def __init__(self, map_obj, cell_size = 16):
-        self.map_obj = map_obj
+    def __init__(self, cell_size = 16):
+        self.map_obj = MapObj(TASK0)
         self.cell_size = cell_size
         self.win_width = self.cell_size * self.map_obj.cols
         self.win_height = self.cell_size * self.map_obj.rows
@@ -18,7 +28,9 @@ class Visualizer(object):
 
         self.window = pygame.display.set_mode((self.win_width,self.win_height))
         pygame.display.set_caption("A* Visualizer")
-        #self.windowclock = pygame.time.Clock()
+
+        pygame.font.init() 
+        self.font = pygame.font.Font(pygame.font.get_default_font(), cell_size)
 
         self._main()
 
@@ -32,23 +44,30 @@ class Visualizer(object):
                     quit()
 
                 if event.type == pygame.KEYDOWN:
-                    # If 1,2,3,4 is pressed, the drawing weight is updated accordingly
-                    if pygame.key.name(event.key) == "1":
-                        self.drawing_weight = 1
-                    elif pygame.key.name(event.key) == "2":
-                        self.drawing_weight = 2
-                    elif pygame.key.name(event.key) == "3":
-                        self.drawing_weight = 3
-                    elif pygame.key.name(event.key) == "4":
-                        self.drawing_weight = 4
-
                     if event.key == pygame.K_SPACE:
-                        self.map_obj.clean()
-                        self.a_star = AStar(self.map_obj)
-                        self.a_star_running = True
-
-                    if event.key == pygame.K_r:
+                        if self.map_obj.start_pos and self.map_obj.start_pos:
+                            self.map_obj.clean()
+                            self.a_star = AStar(self.map_obj)
+                            self.a_star_running = True
+                        else:
+                            print("Set start and goal positions before running A*")
+                    elif event.key == pygame.K_r:
                         self.map_obj.reset()
+                        self.a_star_running = False
+                    elif event.key == pygame.K_ESCAPE:
+                        self.running = False
+                        pygame.quit()
+                        quit()
+                    else:
+                        try:
+                            # Sets map to task specified in TASKS
+                            # TASK0 is a blank 50x50 grid
+                            # TASK1-5 are the tasks given in assignment
+                            task = TASKS[int(pygame.key.name(event.key))]
+                            self.map_obj = MapObj(task)
+                            self._recalc_window()
+                        except:
+                            print("Not a mapped key")
                     
                 # Draws weighted "STANDARD" cells
                 if pygame.mouse.get_pressed()[0]: # Left mouse click
@@ -87,7 +106,12 @@ class Visualizer(object):
             
             # Update display and clock
             pygame.display.update()
-            #self.windowclock.tick(60)
+
+    def _recalc_window(self):
+        self.win_width = self.cell_size * self.map_obj.cols
+        self.win_height = self.cell_size * self.map_obj.rows
+
+        self.window = pygame.display.set_mode((self.win_width,self.win_height))
 
     def _draw(self):
         self.window.fill((255,255,255))
@@ -98,6 +122,13 @@ class Visualizer(object):
                 x = i * self.cell_size
                 y = j * self.cell_size
                 pygame.draw.rect(self.window, cell.color, (x, y, self.cell_size, self.cell_size))
+                if cell.state == "START":
+                    letter = self.font.render("S",1,(0,0,0))
+                    self.window.blit(letter,(x + self.cell_size / 8, y + self.cell_size / 8))
+                elif cell.state == "GOAL":
+                    letter = self.font.render("G",1,(0,0,0))
+                    self.window.blit(letter,(x + self.cell_size / 8, y + self.cell_size / 8))
+
                 
         # Draws grid on top of cells
         for col in range(self.map_obj.cols):
