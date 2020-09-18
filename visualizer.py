@@ -4,7 +4,9 @@ from map_obj import MapObj
 from a_star import AStar
 from task import Task
 
-TASK0 = Task(rows = 50, cols = 50)
+
+# TASK1-5 corresponding with tasks in Assignment 2
+TASK0 = Task(rows = 50, cols = 50) # Initial map is blank
 TASK1 = Task(start_pos = (27, 18), goal_pos = (40, 32), path_to_map = "csv_maps/Samfundet_map_1.csv")
 TASK2 = Task(start_pos = (40, 32), goal_pos = (8, 5), path_to_map = "csv_maps/Samfundet_map_1.csv")
 TASK3 = Task(start_pos = (28, 32), goal_pos = (6, 32), path_to_map = "csv_maps/Samfundet_map_2.csv")
@@ -13,10 +15,22 @@ TASK5 = Task(start_pos = (14, 18), goal_pos = (6, 36), end_goal_pos = (6, 7), pa
 
 TASKS = [TASK0,TASK1,TASK2,TASK3,TASK4,TASK5]
 
+# Goal moves each MOVE_RATE iteration of A*
 MOVE_RATE = 4
 
 class Visualizer(object):
+    """
+    Pygame visualizer of a map with cells
+    """
+
     def __init__(self, cell_size = 16):
+        """
+        Initializes visualizer
+
+        Args:
+            cell_size(int): how many pixels a cell in the grid is
+        """
+
         self.map_obj = MapObj(TASK0)
         self.cell_size = cell_size
         self.win_width = self.cell_size * self.map_obj.cols
@@ -39,6 +53,10 @@ class Visualizer(object):
         self._main()
 
     def _main(self):
+        """
+        Main loop running the visualization
+        """
+
         while self.running:
             #Event Tasking
             for event in pygame.event.get():
@@ -65,7 +83,6 @@ class Visualizer(object):
                     else:
                         try:
                             # Sets map to task specified in TASKS
-                            # TASK0 is a blank 50x50 grid
                             # TASK1-5 are the tasks given in assignment
                             task = TASKS[int(pygame.key.name(event.key))]
                             self.map_obj = MapObj(task)
@@ -103,11 +120,13 @@ class Visualizer(object):
                     # Set cell state to barrier
                     self.map_obj.set_cell_state(cell, "BARRIER", -1)
 
+            # Update map with A* update
             if self.a_star_running:
                 self.tick_counter += 1
                 if not self.tick_counter % MOVE_RATE:
                     self.map_obj.move_goal()
                 self.a_star_running = self.a_star.update()
+
             # Draw window
             self._draw()
             
@@ -115,12 +134,22 @@ class Visualizer(object):
             pygame.display.update()
 
     def _recalc_window(self):
+        """
+        Recalculates window size
+
+        This should be called when the size of self.map_obj is changed.
+        """
+
         self.win_width = self.cell_size * self.map_obj.cols
         self.win_height = self.cell_size * self.map_obj.rows
 
         self.window = pygame.display.set_mode((self.win_width,self.win_height))
 
     def _draw(self):
+        """
+        Draws state of self.map_obj to screen
+        """
+
         self.window.fill((255,255,255))
 
         # Draws all cells
@@ -150,10 +179,18 @@ class Visualizer(object):
             y1 = y2 = row * self.cell_size
             pygame.draw.line(self.window, (100,100,100), (x1,y1), (x2,y2))
 
-        # Draw legend
-
 
     def _get_grid_pos(self, pos):
+        """
+        Get grid position from mouse position
+
+        Args:
+            pos(tuple(int,int)): (x,y) position
+
+        Return:
+            row(int), col(int): grid position
+        """
+        
         row = pos[1] // self.cell_size
         col = pos[0] // self.cell_size
         return row, col 
