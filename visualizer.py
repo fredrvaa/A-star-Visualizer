@@ -1,5 +1,7 @@
 import pygame
 import time
+import os
+
 from map_obj import MapObj
 from a_star import AStar
 from task import Task
@@ -32,6 +34,7 @@ class Visualizer(object):
         """
 
         self.map_obj = MapObj(TASK0)
+        self.curr_task_num = 0
         self.cell_size = cell_size
         self.win_width = self.cell_size * self.map_obj.cols
         self.win_height = self.cell_size * self.map_obj.rows
@@ -66,17 +69,20 @@ class Visualizer(object):
                     quit()
 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_SPACE: # Start A*
                         if self.map_obj.start_pos and self.map_obj.start_pos:
                             self.map_obj.clean()
                             self.a_star = AStar(self.map_obj)
                             self.a_star_running = True
                         else:
                             print("Set start and goal positions before running A*")
-                    elif event.key == pygame.K_r:
+                    elif event.key == pygame.K_r: # Reset map
                         self.map_obj.reset()
                         self.a_star_running = False
-                    elif event.key == pygame.K_ESCAPE:
+                    elif event.key == pygame.K_p: # Take sceenshot
+                        os.makedirs("A_star_visualization_images", exist_ok=True)
+                        pygame.image.save(self.window, f"A_star_visualization_images/task{self.curr_task_num}.png")
+                    elif event.key == pygame.K_ESCAPE: # Quit application
                         self.running = False
                         pygame.quit()
                         quit()
@@ -84,7 +90,8 @@ class Visualizer(object):
                         try:
                             # Sets map to task specified in TASKS
                             # TASK1-5 are the tasks given in assignment
-                            task = TASKS[int(pygame.key.name(event.key))]
+                            self.curr_task_num = int(pygame.key.name(event.key))
+                            task = TASKS[self.curr_task_num]
                             self.map_obj = MapObj(task)
                             self._recalc_window()
                         except:
@@ -190,7 +197,7 @@ class Visualizer(object):
         Return:
             row(int), col(int): grid position
         """
-        
+
         row = pos[1] // self.cell_size
         col = pos[0] // self.cell_size
         return row, col 
